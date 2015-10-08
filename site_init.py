@@ -3,7 +3,7 @@
 
 """
 import os
-
+import sys
 
 def configure_darwin(env):
     """ Configure for recent (Yosemite or better) versions of OSX
@@ -13,9 +13,14 @@ def configure_darwin(env):
     warnings += '-Wall -Wextra -Wpedantic -Wwrite-strings '
     warnings += '-Wcast-qual -Wconversion -Werror=return-type'
     warnings = warnings.split()
-
     env['WARNINGFLAGS'] = warnings
-    env.Append(CCFLAGS = ['-fcolor-diagnostics $WARNINGFLAGS'])
+    env.Append(CCFLAGS = '$WARNINGFLAGS')
+
+    # if scons is being run as a tool (say from inside vim)
+    # don't worry about coloring the output
+    if sys.stdout.isatty():
+        env.Append(CCFLAGS = ['-fcolor-diagnostics'])
+
     env.Append(CXXFLAGS = '-std=c++1y -stdlib=libc++'.split())
 
     opt_flags = dict(
