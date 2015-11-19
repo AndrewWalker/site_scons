@@ -33,9 +33,32 @@ def configure_darwin(env):
     return env
 
 
+def configure_windows(env):
+    """ Configure windows / visual studio
+    """
+    env.Append(CPPDEFINES = ['WIN32'])
+    env.Append(CCFLAGS = '/W3 /Gd /nologo /RTC1 /sdl /EHsc /GS /fp:precise'.split())
+    env.Append(LINKFLAGS = '/nologo')
+    if 'debug' == env.subst('$configuration').lower():
+        env.Append(CPPDEFINES = ['_DEBUG'])
+        env.Append(CCFLAGS = '/Od'.split())
+        if 'static' == env.subst('$msvc_crt'):
+            env.Append(CCFLAGS = '/MTd')
+        else:
+            env.Append(CCFLAGS = '/MDd')
+    if 'release' == env.subst('$configuration').lower():
+        env.Append(CPPDEFINES = ['NDEBUG'])
+        env.Append(CCFLAGS = '/O2'.split())
+        if 'static' == env.subst('$msvc_crt'):
+            env.Append(CCFLAGS = '/MT')
+        else:
+            env.Append(CCFLAGS = '/MD')
+
+
 def configure_platform(env):
     platforms = {
-        'darwin' : configure_darwin
+        'darwin' : configure_darwin,
+        'win32'  : configure_windows
     }
     platforms[sys.platform](env)
 
